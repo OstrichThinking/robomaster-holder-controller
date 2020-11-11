@@ -19,10 +19,15 @@
 #include "stdio.h"
 
 
-moto_info_t motor_info1 = {0};
-moto_info_t motor_info2 = {0};
-moto_info_t motor_info3 = {0};
-moto_info_t motor_info4 = {0};
+moto_info_6020 motor_info_6020_1 = {0};
+moto_info_6020 motor_info_6020_2 = {0};
+moto_info_6020 motor_info_6020_3 = {0};
+moto_info_6020 motor_info_6020_4 = {0};
+
+moto_info_6623 motor_info_6623_1 = {0};
+moto_info_6623 motor_info_6623_2 = {0};
+moto_info_6623 motor_info_6623_3 = {0};
+moto_info_6623 motor_info_6623_4 = {0};
 
 uint16_t can_cnt;
 
@@ -76,23 +81,37 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 	uint8_t index = rx_header.StdId - FEEDBACK_ID_BASE;  // get motor index by can_id
 	switch(index){
 		case 1:
-			can_cnt++;
-			motor_info1.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]);
-//			motor_info1.rotor_angle = motor_info.rotor_angle / 22.75;
-			motor_info1.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
-			motor_info1.torque_current = ((rx_data[4] << 8) | rx_data[5]);
-			motor_info1.temp           = ((rx_data[6] << 8) | rx_data[7]);
+			motor_info_6623_1.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]) / 22.75f; //换为0-360内的角度
+			motor_info_6623_1.torque_current = ((rx_data[2] << 8) | rx_data[3]);
+			motor_info_6623_1.torque_rated   = ((rx_data[4] << 8) | rx_data[5]);
+//			printf("  6623-1机械角度  %2d ", motor_info_6623_1.rotor_angle);
+//			printf("  实际转矩电流 %2d ",    motor_info_6623_1.torque_current);
+//			printf("  给定转矩电流 %2d \r\n",    motor_info_6623_1.torque_rated);
+//		
+		
+//			can_cnt++;
+//			motor_info_6020_1.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]) / 22.75f; //换为0-360内的角度
+//			motor_info_6020_1.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
+//			motor_info_6020_1.torque_current = ((rx_data[4] << 8) | rx_data[5]);
+//			motor_info_6020_1.temp           = ((rx_data[6] << 8) | rx_data[7]);
 //			printf("  2060-1机械角度  %2d ",    motor_info.rotor_angle);
 //			printf("  转速 %2d ",motor_info.rotor_speed);
 //			printf("  实际转矩电流 %2d ",    motor_info.torque_current);
 //			printf("  温度 %2d  \r\n",motor_info.temp);
 			break;
 		case 2:
-			can_cnt++;
-			motor_info2.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]) / 22.75f; //换为0-360内的角度
-			motor_info2.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
-			motor_info2.torque_current = ((rx_data[4] << 8) | rx_data[5]);
-			motor_info2.temp           = ((rx_data[6] << 8) | rx_data[7]);
+			motor_info_6623_2.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]) / 22.75f; //换为0-360内的角度
+			motor_info_6623_2.torque_current = ((rx_data[2] << 8) | rx_data[3]);
+			motor_info_6623_2.torque_rated   = ((rx_data[4] << 8) | rx_data[5]);
+//			printf("  6623-2机械角度  %2d ", motor_info_6623_2.rotor_angle);
+//			printf("  实际转矩电流 %2d ",    motor_info_6623_2.torque_current);
+//			printf("  给定转矩电流 %2d \r\n",    motor_info_6623_2.torque_rated);
+		
+//			can_cnt++;
+//			motor_info_6020_2.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]) / 22.75f; //换为0-360内的角度
+//			motor_info_6020_2.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
+//			motor_info_6020_2.torque_current = ((rx_data[4] << 8) | rx_data[5]);
+//			motor_info_6020_2.temp           = ((rx_data[6] << 8) | rx_data[7]);
 //			printf("  2060-2机械角度  %2d ",    motor_info.rotor_angle);
 //			printf("  转速 %2d ",motor_info.rotor_speed);
 //			printf("  实际转矩电流 %2d ",    motor_info.torque_current);
@@ -100,10 +119,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 			break;
 		case 3:
 			can_cnt++;
-			motor_info3.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]);
-			motor_info3.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
-			motor_info3.torque_current = ((rx_data[4] << 8) | rx_data[5]);
-			motor_info3.temp           = ((rx_data[6] << 8) | rx_data[7]);
+			motor_info_6020_3.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]);
+			motor_info_6020_3.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
+			motor_info_6020_3.torque_current = ((rx_data[4] << 8) | rx_data[5]);
+			motor_info_6020_3.temp           = ((rx_data[6] << 8) | rx_data[7]);
 //			printf("  6060-3机械角度  %2d ",    motor_info.rotor_angle);
 //			printf("  转速 %2d ",motor_info.rotor_speed);
 //			printf("  实际转矩电流 %2d ",    motor_info.torque_current);
@@ -111,10 +130,10 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 			break;
 		case 4:
 			can_cnt++;
-			motor_info4.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]) / 22.75f; //换为0-360内的角度
-			motor_info4.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
-			motor_info4.torque_current = ((rx_data[4] << 8) | rx_data[5]);
-			motor_info4.temp           = ((rx_data[6] << 8) | rx_data[7]);
+			motor_info_6020_4.rotor_angle    = ((rx_data[0] << 8) | rx_data[1]) / 22.75f; //换为0-360内的角度
+			motor_info_6020_4.rotor_speed    = ((rx_data[2] << 8) | rx_data[3]);
+			motor_info_6020_4.torque_current = ((rx_data[4] << 8) | rx_data[5]);
+			motor_info_6020_4.temp           = ((rx_data[6] << 8) | rx_data[7]);
 			break;
 	}
 }

@@ -42,16 +42,22 @@ extern UART_HandleTypeDef huart6;
 extern rc_info_t rc;
 char buf[200];
  
-extern pid_struct_t motor_rotate2_pid;
-extern pid_struct_t motor_rotate4_pid;
+extern pid_struct_t motor_pid2_6020; //6020旋转角度PID
+extern pid_struct_t motor_pid4_6020; //6020旋转角度PID
+extern pid_struct_t motor_pid1_6623; //6623旋转角度PID
+extern pid_struct_t motor_pid2_6623; //6623旋转角度PID
 
-float target_speed;
+float target_angle_yaw_6020 = 0.0f; //云台角度
+float target_angle_pitch_6020 = 0.0f;
 
-float target_angle_yaw = 0.0f; //云台角度
-float target_angle_pitch = 0.0f;
+float target_angle_yaw_6623 = 200.0f; //云台角度
+float target_angle_pitch_6623 = 180.0f;
 
-extern moto_info_t motor_info4;
-extern moto_info_t motor_info2;
+extern moto_info_6623 motor_info_6623_1;
+extern moto_info_6623 motor_info_6623_2;
+
+extern moto_info_6020 motor_info_6020_4;
+extern moto_info_6020 motor_info_6020_2;
 
 /* USER CODE END PTD */
 
@@ -178,6 +184,22 @@ void Start2060Task1(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+	  /* 6623云台控制程序 */
+	  if(rc.sw1 == 1 && rc.sw2 == 1){
+		  
+		  target_angle_yaw_6623 += rc.ch1 * 0.0005;
+		  target_angle_yaw_6623 = target_angle_yaw_6623>300 ? 300 : (target_angle_yaw_6623<220 ? 220: target_angle_yaw_6623);
+		  motor_info_6623_1.set_current = pid_calc(&motor_pid1_6623, target_angle_yaw_6623, motor_info_6623_1.rotor_angle);
+		  
+		  target_angle_pitch_6623 += rc.ch4 *0.0005;
+		  target_angle_pitch_6623 = target_angle_pitch_6623>200 ? 200 :(target_angle_pitch_6623<160 ? 160 :target_angle_pitch_6623);
+		  motor_info_6623_2.set_current = pid_calc(&motor_pid2_6623, target_angle_pitch_6623, motor_info_6623_2.rotor_angle);
+		  
+		  //set_motor_voltage(0x0000,-motor_info_6623_2.set_current,0x0000,0x0000);
+		  set_motor_voltage(-motor_info_6623_1.set_current,-motor_info_6623_2.set_current,0x0000,0x0000);
+		  
+	  }
+	  
 	  osDelay(5);
   }
   /* USER CODE END Start2060Task1 */
@@ -196,37 +218,20 @@ void Start2060Task2(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	/* motor speed pid calc */
-	  
-//	  if(rc.sw2 == 1){
-//		  angle_yaw += rc.ch1 * 0.005;
-//		  angle_yaw = angle_yaw>180 ? 180 : (angle_yaw<0 ? 0 : angle_yaw);
-//		  float yaw = pid_calc(&motor_rotate4_pid, angle_yaw, motor_info.rotor_angle);
-//		  set_motor_voltage(0x0000,0x0000,0x0000,yaw);
+	/* 6020云台控制程序 */  
+//	  if(rc.sw1 == 1 && rc.sw2 == 1){
+//		  
+//		  target_angle_yaw_6020 += rc.ch1 * 0.005;
+//		  target_angle_yaw_6020 = target_angle_yaw_6020>180 ? 180 : (target_angle_yaw_6020<0 ? 0 : target_angle_yaw_6020);
+//		  motor_info_6020_4.set_voltage = pid_calc(&motor_rotate4_6020, target_angle_yaw_6020, motor_info_6020_4.rotor_angle);
+//		  
+//		  target_angle_pitch_6020 += rc.ch4 * 0.005;
+//		  target_angle_pitch_6020 = target_angle_pitch_6020>250 ? 250 : (target_angle_pitch_6020<180 ? 180: target_angle_pitch_6020);
+//		  motor_info_6020_2.set_voltage = pid_calc(&motor_rotate2_6020, target_angle_pitch_6020, motor_info_6020_2.rotor_angle);
+//		  
+//		  set_motor_voltage(0x0000,motor_info_6020_2.set_voltage,0x0000,motor_info_6020_4.set_voltage);
+//		  
 //	  }
-//	  if(rc.sw1 == 1){  
-//		  angle_pitch += rc.ch4 * 0.005;
-//		  angle_pitch = angle_pitch>250 ? 250 : (angle_pitch<180 ? 180: angle_pitch);
-//		  float pitch = pid_calc(&motor_rotate2_pid, angle_pitch, motor_info.rotor_angle);
-//		  set_motor_voltage(0x0000,pitch,0x0000,0x0000);
-//	  }
-	  
-	  
-	  if(rc.sw1 == 1 && rc.sw2 == 1){
-		  
-		  target_angle_yaw += rc.ch1 * 0.005;
-		  target_angle_yaw = target_angle_yaw>180 ? 180 : (target_angle_yaw<0 ? 0 : target_angle_yaw);
-		  motor_info4.set_voltage = pid_calc(&motor_rotate4_pid, target_angle_yaw, motor_info4.rotor_angle);
-		  
-		  target_angle_pitch += rc.ch4 * 0.005;
-		  target_angle_pitch = target_angle_pitch>250 ? 250 : (target_angle_pitch<180 ? 180: target_angle_pitch);
-		  motor_info2.set_voltage = pid_calc(&motor_rotate2_pid, target_angle_pitch, motor_info2.rotor_angle);
-		  
-		  
-		  set_motor_voltage(0x0000,motor_info2.set_voltage,0x0000,motor_info4.set_voltage);
-		  
-	  }
-	  
 	  osDelay(5);
 	  
   }

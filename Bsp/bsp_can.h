@@ -25,25 +25,26 @@
 #define CAN_CONTROL_ID_EXTEND 0x2ff
 #define MOTOR_MAX_NUM         7
 
-//typedef struct
-//{
-//    uint16_t rotor_angle;    //机械角度
-//    int16_t  rotor_speed;    //转速
-//    int16_t  torque_current; //实际转矩电流
-//    uint8_t  temp; //温度
-//}moto_info_t;
+typedef struct
+{
+	uint16_t can_id;         //设备ID
+    int16_t  set_current;    //设置的电流
+    uint16_t rotor_angle;    //机械角度
+    int16_t  torque_current; //实际转矩电流
+    uint8_t  torque_rated;   //给定转矩电流
+}moto_info_6623;
 
 typedef struct
 {
-    uint16_t can_id;
+    uint16_t can_id;         
     int16_t  set_voltage;
     uint16_t rotor_angle;
     int16_t  rotor_speed;
     int16_t  torque_current;
     uint8_t  temp;
-}moto_info_t;
+}moto_info_6020;
 
-extern moto_info_t motor_info;
+extern moto_info_6020 motor_info;
 
 void can_user_init(CAN_HandleTypeDef* hcan);
 void set_motor_voltage(int16_t v1, int16_t v2, int16_t v3, int16_t v4);

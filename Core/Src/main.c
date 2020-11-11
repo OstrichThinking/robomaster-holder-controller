@@ -38,9 +38,11 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 
-pid_struct_t motor_rotate2_pid = {0}; //锁死位置PID
-pid_struct_t motor_rotate4_pid = {0}; //旋转角度PID
+pid_struct_t motor_pid2_6020 = {0}; //6020旋转角度PID
+pid_struct_t motor_pid4_6020 = {0}; //6020旋转角度PID
 
+pid_struct_t motor_pid1_6623 = {0}; //6020旋转角度PID
+pid_struct_t motor_pid2_6623 = {0}; //6020旋转角度PID
 
 
 //float target_speed = 0.0f;
@@ -111,11 +113,13 @@ int main(void)
   dbus_uart_init();
 
   //初始化PID'
-    pid_init(&motor_rotate2_pid, 450, 0, 0, 30000, 30000); //init pid parameter, kp=40, ki=3, kd=0, output limit = 30000
+    pid_init(&motor_pid2_6020, 420, 0, 0, 30000, 30000);
+	pid_init(&motor_pid4_6020, 55, 0, 0, 30000, 30000);
 	
-	pid_init(&motor_rotate4_pid, 55, 0, 0, 2000, 30000); //init pid parameter, kp=40, ki=3, kd=0, output limit = 30000 
-  /* USER CODE END 2 */
-
+	pid_init(&motor_pid1_6623, 220, 0, 0, 5000, 5000);
+	pid_init(&motor_pid2_6623, 125, 0, 0, 1000, 5000);
+  /* USER CODE END 2 */                              
+                
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
   /* Start scheduler */
@@ -230,4 +234,4 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/************************ (C) CO0PYRIGHT STMicroelectronics *****END OF FILE****/
