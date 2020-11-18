@@ -32,6 +32,8 @@
 #include "stdio.h"
 #include "pid.h"
 #include "freertos.h"
+#include "bsp_imu_data_decode.h"
+#include "bsp_packet.h"
 
 /* USER CODE END Includes */
 
@@ -40,12 +42,10 @@
 
 pid_struct_t motor_pid2_6020 = {0}; //6020旋转角度PID
 pid_struct_t motor_pid4_6020 = {0}; //6020旋转角度PID
-
 pid_struct_t motor_pid1_6623 = {0}; //6020旋转角度PID
 pid_struct_t motor_pid2_6623 = {0}; //6020旋转角度PID
 
-
-//float target_speed = 0.0f;
+extern uint8_t ch;  //串口6接收陀螺仪数据中断
 
 /* USER CODE END PTD */
 
@@ -108,9 +108,12 @@ int main(void)
   MX_USART6_UART_Init();
   MX_USART1_UART_Init();
   MX_CAN1_Init();
+  MX_UART8_Init();
   /* USER CODE BEGIN 2 */
   can_user_init(&hcan1);
   dbus_uart_init();
+  imu_data_decode_init();                       //映射解析函数
+  HAL_UART_Receive_IT(&huart6,&ch,sizeof(ch));  //初始化串口接收中断
 
   //初始化PID'
     pid_init(&motor_pid2_6020, 420, 0, 0, 30000, 30000);
@@ -118,8 +121,8 @@ int main(void)
 	
 	pid_init(&motor_pid1_6623, 220, 0, 0, 5000, 5000);
 	pid_init(&motor_pid2_6623, 125, 0, 0, 1000, 5000);
-  /* USER CODE END 2 */                              
-                
+  /* USER CODE END 2 */
+
   /* Call init function for freertos objects (in freertos.c) */
   MX_FREERTOS_Init();
   /* Start scheduler */
@@ -234,4 +237,4 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
-/************************ (C) CO0PYRIGHT STMicroelectronics *****END OF FILE****/
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

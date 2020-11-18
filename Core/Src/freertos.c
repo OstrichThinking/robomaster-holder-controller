@@ -47,17 +47,20 @@ extern pid_struct_t motor_pid4_6020; //6020旋转角度PID
 extern pid_struct_t motor_pid1_6623; //6623旋转角度PID
 extern pid_struct_t motor_pid2_6623; //6623旋转角度PID
 
-float target_angle_yaw_6020 = 0.0f; //云台角度
+float target_angle_yaw_6020   = 0.0f; //云台角度
 float target_angle_pitch_6020 = 0.0f;
-
-float target_angle_yaw_6623 = 200.0f; //云台角度
+float target_angle_yaw_6623   = 200.0f; //云台角度
 float target_angle_pitch_6623 = 180.0f;
 
 extern moto_info_6623 motor_info_6623_1;
 extern moto_info_6623 motor_info_6623_2;
-
 extern moto_info_6020 motor_info_6020_4;
 extern moto_info_6020 motor_info_6020_2;
+
+
+extern float roll_angle_gyroscope;
+extern float pitch_angle_gyroscope;
+extern float yaw_angle_gyroscope;
 
 /* USER CODE END PTD */
 
@@ -166,6 +169,9 @@ void StartDefaultTask(void const * argument)
   {
 	  sprintf(buf, "CH1: %4d  CH2: %4d  CH3: %4d  CH4: %4d  SW1: %1d  SW2: %1d \r\n", rc.ch1, rc.ch2, rc.ch3, rc.ch4, rc.sw1, rc.sw2);
 	  HAL_UART_Transmit(&huart6, (uint8_t *)buf, (COUNTOF(buf) - 1), 55);
+	  
+//	  printf("R:%4.2f  P:%4.2f  Y:%4.2f\r\n", roll_angle_gyroscope,  pitch_angle_gyroscope,  yaw_angle_gyroscope);
+	  
 	  osDelay(5);
   }
   /* USER CODE END StartDefaultTask */
@@ -184,21 +190,32 @@ void Start2060Task1(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-	  /* 6623云台控制程序 */
+	  
 	  if(rc.sw1 == 1 && rc.sw2 == 1){
-		  
-		  target_angle_yaw_6623 += rc.ch1 * 0.0005;
-		  target_angle_yaw_6623 = target_angle_yaw_6623>300 ? 300 : (target_angle_yaw_6623<220 ? 220: target_angle_yaw_6623);
-		  motor_info_6623_1.set_current = pid_calc(&motor_pid1_6623, target_angle_yaw_6623, motor_info_6623_1.rotor_angle);
-		  
-		  target_angle_pitch_6623 += rc.ch4 *0.0005;
-		  target_angle_pitch_6623 = target_angle_pitch_6623>200 ? 200 :(target_angle_pitch_6623<160 ? 160 :target_angle_pitch_6623);
-		  motor_info_6623_2.set_current = pid_calc(&motor_pid2_6623, target_angle_pitch_6623, motor_info_6623_2.rotor_angle);
-		  
-		  //set_motor_voltage(0x0000,-motor_info_6623_2.set_current,0x0000,0x0000);
-		  set_motor_voltage(-motor_info_6623_1.set_current,-motor_info_6623_2.set_current,0x0000,0x0000);
-		  
+		  if(yaw_angle_gyroscope < 0){
+			  yaw_angle_gyroscope = 360 + yaw_angle_gyroscope;
+		  }
+		  yaw_angle_gyroscope = yaw_angle_gyroscope>300 ? 300 : (yaw_angle_gyroscope<220 ? 220: yaw_angle_gyroscope);
+		  motor_info_6623_1.set_current = pid_calc(&motor_pid1_6623, yaw_angle_gyroscope, motor_info_6623_1.rotor_angle);
+		  set_motor_voltage(-motor_info_6623_1.set_current,0x0000,0x0000,0x0000);
 	  }
+	  
+	  
+	  /* 6623云台控制程序 */
+//	  if(rc.sw1 == 1 && rc.sw2 == 1){
+//		  
+//		  target_angle_yaw_6623 += rc.ch1 * 0.0005;
+//		  target_angle_yaw_6623 = target_angle_yaw_6623>300 ? 300 : (target_angle_yaw_6623<220 ? 220: target_angle_yaw_6623);
+//		  motor_info_6623_1.set_current = pid_calc(&motor_pid1_6623, target_angle_yaw_6623, motor_info_6623_1.rotor_angle);
+//		  
+//		  target_angle_pitch_6623 += rc.ch4 *0.0005;
+//		  target_angle_pitch_6623 = target_angle_pitch_6623>200 ? 200 :(target_angle_pitch_6623<160 ? 160 :target_angle_pitch_6623);
+//		  motor_info_6623_2.set_current = pid_calc(&motor_pid2_6623, target_angle_pitch_6623, motor_info_6623_2.rotor_angle);
+//		  
+//		  //set_motor_voltage(0x0000,-motor_info_6623_2.set_current,0x0000,0x0000);
+//		  set_motor_voltage(-motor_info_6623_1.set_current,-motor_info_6623_2.set_current,0x0000,0x0000);
+//		  
+//	  }
 	  
 	  osDelay(5);
   }
